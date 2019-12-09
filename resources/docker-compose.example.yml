@@ -36,7 +36,7 @@ services:
   php-fpm-71:
     image: azamatx/laradock-php-fpm:7.1
     volumes:
-      - ./etc/xdebug.ini:/etc/php/7.1/cli/conf.d/xdebug.ini
+      - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - ./var/log/php-fpm/:/var/log/php-fpm
       - ./var/xdebug:/var/www/xdebug
     expose:
@@ -46,7 +46,7 @@ services:
   php-fpm-72:
     image: azamatx/laradock-php-fpm:7.2
     volumes:
-      - ./etc/xdebug.ini:/etc/php/7.1/cli/conf.d/xdebug.ini
+      - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - ./var/log/php-fpm/:/var/log/php-fpm
       - ./var/xdebug:/var/www/xdebug
     expose:
@@ -54,9 +54,9 @@ services:
     networks:
       - backend
   php-fpm-73:
-    image: azamatx/laradock-php-fpm:7.2
+    image: azamatx/laradock-php-fpm:7.3
     volumes:
-      - ./etc/xdebug.ini:/etc/php/7.1/cli/conf.d/xdebug.ini
+      - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - ./var/log/php-fpm/:/var/log/php-fpm
       - ./var/xdebug:/var/www/xdebug
     expose:
