@@ -6,7 +6,9 @@ docker build -t azamatx/laradock-php-fpm:7.3 --build-arg PHP_VERSION=7.3 ./php-f
 docker build -t azamatx/laradock-mariadb:latest ./mariadb
 docker build -t azamatx/laradock-workspace:latest ./workspace
 
-#docker push azamatx/laradock-nginx:latest
-#docker push azamatx/laradock-php-fpm:7.1
-#docker push azamatx/laradock-mariadb:latest
-#docker push azamatx/laradock-workspace:latest
+docker push azamatx/laradock-nginx:latest
+docker push azamatx/laradock-php-fpm:7.1
+docker push azamatx/laradock-php-fpm:7.2
+docker push azamatx/laradock-php-fpm:7.3
+docker push azamatx/laradock-mariadb:latest
+docker push azamatx/laradock-workspace:latest

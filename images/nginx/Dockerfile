@@ -2,7 +2,6 @@ FROM nginx:alpine
 
 COPY nginx.conf /etc/nginx/
 COPY logrotate/nginx /etc/logrotate.d/
-COPY upstream.conf /etc/nginx/conf.d/upstream.conf
 ADD startup.sh /opt/startup.sh
 
 RUN addgroup -g 82 -S www-data ; \

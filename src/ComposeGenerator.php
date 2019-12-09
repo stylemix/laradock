@@ -26,7 +26,7 @@ class ComposeGenerator
 			$volumes = [];
 
 			foreach ($config['folders'] as $folder) {
-				$volumes[] = $folder['map'] . ':' . $folder['to'] . ':cached';
+				$volumes[] = $folder['map'] . ':' . $folder['to'] . '${APP_CODE_CONTAINER_FLAG}';
 			}
 
 			$services = [
@@ -59,14 +59,15 @@ class ComposeGenerator
 				$site += [
 					'php' => '7.2',
 				];
+				$fpmService = 'php-fpm-' . str_replace('.', '', $site['php']);
 				file_put_contents(__DIR__ . "/../etc/sites/{$site['map']}.conf", strtr($template, [
 					'${domain}' => $site['map'],
-					'${root}' => $site['root'],
-					'${upstream}' => "php{$site['php']}-upstream",
+					'${root}' => $site['to'],
+					'${upstream}' => "{$fpmService}:9000",
 				]));
 
 				// remove php-fpm version from excluded services
-				unset($excludeServices['php-fpm-' . str_replace('.', '', $site['php'])]);
+				unset($excludeServices[$fpmService]);
 			}
 		}
 

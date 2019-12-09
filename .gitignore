@@ -1,5 +1,3 @@
-/logs
-/data
 /vendor
 .env
 config.yml

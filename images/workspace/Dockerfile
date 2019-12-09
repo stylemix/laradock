@@ -56,6 +56,7 @@ RUN apt-get install -yqq --allow-downgrades --allow-remove-essential --allow-cha
       vim \
       nano \
       postgresql-client \
+      # PHP 7.1
       php7.1-cli \
       php7.1-common \
       php7.1-curl \
@@ -74,13 +75,8 @@ RUN apt-get install -yqq --allow-downgrades --allow-remove-essential --allow-cha
       php7.1-gd \
       php7.1-dev \
       php7.1-zip \
-      php7.1-xdebug
-RUN pecl channel-update pecl.php.net && \
-    curl -s http://getcomposer.org/installer | php && \
-    mv composer.phar /usr/local/bin/composer && \
-    curl -fsSL -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar | bash && \
-    chmod +x /usr/local/bin/wp
-RUN apt-get install -yqq --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+      php7.1-xdebug \
+      # PHP 7.2
       php7.2-cli \
       php7.2-common \
       php7.2-curl \
@@ -97,7 +93,12 @@ RUN apt-get install -yqq --allow-downgrades --allow-remove-essential --allow-cha
       php7.2-memcached \
       php7.2-gd \
       php7.2-dev \
-      php7.2-xdebug
+      php7.2-xdebug && \
+    pecl channel-update pecl.php.net && \
+    curl -s http://getcomposer.org/installer | php && \
+    mv composer.phar /usr/local/bin/composer && \
+    curl -fsSL -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar | bash && \
+    chmod +x /usr/local/bin/wp
 
 # Source the bash
 RUN . ~/.bashrc

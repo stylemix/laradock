@@ -1,0 +1,12 @@
+folders:
+  - map: ~/code
+    to: /var/laradock/code
+
+sites:
+  - map: laradock.loc
+    root: /var/laradock/code/public
+
+#features:
+#  elasticsearch:
+#    - 6
+#    - 7
