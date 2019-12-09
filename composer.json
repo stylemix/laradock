@@ -1,0 +1,22 @@
+{
+    "name": "stylemix/dock",
+    "authors": [
+        {
+            "name": "Azamat",
+            "email": "azamat@stylemix.net"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+        "symfony/console": "^5.0",
+        "symfony/yaml": "^5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Docker\\": "./src"
+        }
+    }
+}

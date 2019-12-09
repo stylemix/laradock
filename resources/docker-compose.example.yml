@@ -1,0 +1,148 @@
+version: '3'
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+    internal: true
+
+volumes:
+  mysql:
+    driver: local
+  redis:
+    driver: local
+  phpmyadmin:
+    driver: local
+  elasticsearch:
+    driver: local
+
+services:
+
+  ### Workspace Utilities ##################################
+  workspace:
+    image: azamatx/laradock-workspace
+    volumes:
+      - ./etc/composer-auth.json:/home/laradock/.composer/auth.json:cached
+      - ./etc/supervisor:/etc/supervisord.d:cached
+      - ./etc/xdebug.ini:/etc/php/7.1/cli/conf.d/xdebug.ini:cached
+      - ./logs/xdebug:/var/log/xdebug:cached
+    ports:
+      - "22:22"
+    tty: true
+    networks:
+      - frontend
+      - backend
+
+  ### PHP-FPM ##############################################
+  php-fpm-71:
+    image: azamatx/laradock-php-fpm:7.1
+    volumes:
+      - ./etc/xdebug.ini:/etc/php/7.1/cli/conf.d/xdebug.ini:cached
+      - ./data/xdebug:/var/www/xdebug:cached
+    expose:
+      - "9000"
+    networks:
+      - backend
+  php-fpm-72:
+    image: azamatx/laradock-php-fpm:7.2
+    volumes:
+      - ./etc/xdebug.ini:/etc/php/7.1/cli/conf.d/xdebug.ini:cached
+      - ./data/xdebug:/var/www/xdebug:cached
+    expose:
+      - "9000"
+    networks:
+      - backend
+  php-fpm-73:
+    image: azamatx/laradock-php-fpm:7.2
+    volumes:
+      - ./etc/xdebug.ini:/etc/php/7.1/cli/conf.d/xdebug.ini:cached
+      - ./data/xdebug:/var/www/xdebug:cached
+    expose:
+      - "9000"
+    networks:
+      - backend
+
+  ### NGINX Server #########################################
+  nginx:
+    image: azamatx/laradock-nginx
+    volumes:
+      - ./logs/nginx/:/var/log/nginx
+      - ./etc/sites:/etc/nginx/sites-available:cached
+      - ./etc/ssl:/etc/nginx/ssl:cached
+    ports:
+      - "80"
+      - "443"
+    networks:
+      - frontend
+      - backend
+
+  ### MariaDB ##############################################
+  mariadb:
+    image: azamatx/laradock-mariadb
+    volumes:
+      - mysql:/var/lib/mysql
+      - ./etc/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./etc/initdb:/docker-entrypoint-initdb.d
+    ports:
+      - "3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+    networks:
+      - backend
+
+  ### Redis ################################################
+  redis:
+    image: redis:latest
+    volumes:
+      - redis:/data
+    networks:
+      - backend
+
+  ### phpMyAdmin ###########################################
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mariadb
+      - PMA_VERBOSE=laradock
+      - PMA_USER=root
+      - PMA_PASSWORD=secret
+      - PMA_ROOT_PASSWORD=secret
+    ports:
+      - "81:80"
+    depends_on:
+      - mariadb
+    networks:
+      - frontend
+      - backend
+
+  ### ElasticSearch ########################################
+  elasticsearch6:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.5
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+    environment:
+      - cluster.name=laradock-cluster
+      - node.name=laradock-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200"
+      - "9300"
+    networks:
+      - frontend
+      - backend
+
+  ### Mailhog ################################################
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025"
+    networks:
+      - backend
+      - frontend

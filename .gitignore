@@ -1,0 +1,10 @@
+/logs
+/data
+/vendor
+.env
+config.yml
+docker-compose.yml
+/.project
+/.docker-sync
+/.idea
+.DS_Store

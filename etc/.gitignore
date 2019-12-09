@@ -1,0 +1,9 @@
+/initdb/*
+/sites/*
+/ssl/*
+/supervisor/*
+composer-auth.json
+my.cnf
+xdebug.ini
+!.gitignore
+!.gitkeep
