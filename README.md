@@ -57,3 +57,17 @@ The lines you add to this file will look like the following:
 ```
 127.0.0.1 project1.loc
 ```
+
+## Start containers
+
+```bash
+./up.bat
+```
+It triggers regenerating `docker-compose.yml` and starting services.
+
+## SSH into workspace
+
+Login as `laradock` user:
+```bash
+./bash.bat
+```

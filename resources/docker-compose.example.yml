@@ -43,6 +43,7 @@ services:
       - "9000"
     networks:
       - backend
+      - frontend
   php-fpm-72:
     image: azamatx/laradock-php-fpm:7.2
     volumes:
@@ -53,6 +54,7 @@ services:
       - "9000"
     networks:
       - backend
+      - frontend
   php-fpm-73:
     image: azamatx/laradock-php-fpm:7.3
     volumes:
@@ -63,6 +65,7 @@ services:
       - "9000"
     networks:
       - backend
+      - frontend
 
   ### NGINX Server #########################################
   nginx:
@@ -86,7 +89,7 @@ services:
       - ./etc/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./etc/initdb:/docker-entrypoint-initdb.d
     ports:
-      - "3306"
+      - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=secret
     networks:
@@ -143,7 +146,7 @@ services:
   mailhog:
     image: mailhog/mailhog
     ports:
-      - "8025"
+      - "8025:8025"
     networks:
       - backend
       - frontend
