@@ -1,161 +1,196 @@
-FROM phusion/baseimage:latest
+FROM azamatx/laradock-workspace
 
-# Set Environment Variables
-ENV DEBIAN_FRONTEND noninteractive
-RUN locale-gen en_US.UTF-8
-ENV LANGUAGE=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
-ENV LC_CTYPE=en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV TERM xterm
-ARG TZ=UTC
-ENV TZ ${TZ}
+ARG CHANGE_SOURCE=false
+ARG UBUNTU_SOURCE
+COPY ./sources.sh /tmp/sources.sh
 
-# Start as root
-USER root
+RUN if [ ${CHANGE_SOURCE} = true ]; then \
+    chmod +x /tmp/sources.sh && \
+    /bin/sh -c /tmp/sources.sh && \
+    rm -rf /tmp/sources.sh \
+;fi
 
 ###########################################################################
-# Laradock non-root user:
+# Oh-my-zsh
 ###########################################################################
-
-# Add a non-root user to prevent files being created with root permissions on host machine.
-ARG PUID=1000
-ENV PUID ${PUID}
-ARG PGID=1000
-ENV PGID ${PGID}
-
-RUN set -xe; \
-    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
-    groupadd -g ${PGID} laradock && \
-    useradd -u ${PUID} -g laradock -m laradock -G docker_env && \
-    usermod -p "*" laradock -s /bin/bash && \
-    # always run apt update when start and after add new source list, then clean up at end.
-    apt-get install -yqq software-properties-common && \
-    add-apt-repository -y ppa:ondrej/php && \
-    apt-get update -yqq
-RUN apt-get install -yqq --allow-downgrades --allow-remove-essential --allow-change-held-packages \
-      apt-utils \
-      libzip-dev \
-      zip \
-      unzip \
-      inetutils-ping \
-      mysql-client \
-      supervisor \
-      procps \
-      nasm \
-      pkg-config \
-      libcurl4-openssl-dev \
-      libedit-dev \
-      libssl-dev \
-      libxml2-dev \
-      xz-utils \
-      libsqlite3-dev \
-      sqlite3 \
-      git \
-      curl \
-      vim \
-      nano \
-      postgresql-client \
-      # PHP 7.1
-      php7.1-cli \
-      php7.1-common \
-      php7.1-curl \
-      php7.1-intl \
-      php7.1-json \
-      php7.1-xml \
-      php7.1-mbstring \
-      php7.1-mcrypt \
-      php7.1-mysql \
-      php7.1-pgsql \
-      php7.1-sqlite \
-      php7.1-sqlite3 \
-      php7.1-zip \
-      php7.1-bcmath \
-      php7.1-memcached \
-      php7.1-gd \
-      php7.1-dev \
-      php7.1-zip \
-      php7.1-xdebug \
-      # PHP 7.2
-      php7.2-cli \
-      php7.2-common \
-      php7.2-curl \
-      php7.2-intl \
-      php7.2-json \
-      php7.2-xml \
-      php7.2-mbstring \
-      php7.2-mysql \
-      php7.2-pgsql \
-      php7.2-sqlite \
-      php7.2-sqlite3 \
-      php7.2-zip \
-      php7.2-bcmath \
-      php7.2-memcached \
-      php7.2-gd \
-      php7.2-dev \
-      php7.2-xdebug && \
-    pecl channel-update pecl.php.net && \
-    curl -s http://getcomposer.org/installer | php && \
-    mv composer.phar /usr/local/bin/composer && \
-    curl -fsSL -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar | bash && \
-    chmod +x /usr/local/bin/wp
-
-# Source the bash
-RUN . ~/.bashrc
-
-COPY aliases.sh /root/aliases.sh
-COPY aliases.sh /home/laradock/aliases.sh
-COPY insecure_id_rsa /tmp/id_rsa
-COPY insecure_id_rsa.pub /tmp/id_rsa.pub
-COPY composer.json /home/laradock/.composer/composer.json
-COPY supervisord.conf /etc/supervisord.conf
-COPY entrypoint.sh /entrypoint.sh
-
-###########################################################################
-# ssh:
-###########################################################################
-
-RUN rm -f /etc/service/sshd/down && \
-    cat /tmp/id_rsa.pub >> /root/.ssh/authorized_keys && \
-    cat /tmp/id_rsa.pub >> /root/.ssh/id_rsa.pub && \
-    cat /tmp/id_rsa >> /root/.ssh/id_rsa && \
-    rm -f /tmp/id_rsa* && \
-    chmod 644 /root/.ssh/authorized_keys /root/.ssh/id_rsa.pub && \
-    chmod 400 /root/.ssh/id_rsa && \
-    cp -rf /root/.ssh /home/laradock && \
-    chown -R laradock:laradock /home/laradock/.ssh && \
-    chmod 755 /entrypoint.sh
-
-# Make sure that ~/.composer belongs to laradock
-RUN chown -R laradock:laradock /home/laradock/.composer && \
-    echo "" >> ~/.bashrc && \
-    echo 'export PATH="$HOME/.composer/vendor/bin:$PATH"' >> ~/.bashrc && \
-    sed -i 's/\r//' /root/aliases.sh && \
-    sed -i 's/\r//' /home/laradock/aliases.sh && \
-    chown laradock:laradock /home/laradock/aliases.sh && \
-    echo "" >> ~/.bashrc && \
-    echo "# Load Custom Aliases" >> ~/.bashrc && \
-    echo "source ~/aliases.sh" >> ~/.bashrc && \
-	  echo "" >> ~/.bashrc
+ARG INSTALL_OH_MY_ZSH=false
+RUN if [ ${INSTALL_OH_MY_ZSH} = true ]; then \
+    apt-get update -yq && apt-get install -yq zsh \
+    && zsh --version \
+    && chsh -s $(which zsh) laradock \
+;fi
 
 USER laradock
+RUN if [ ${INSTALL_OH_MY_ZSH} = true ]; then \
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended" \
+;fi
 
-RUN echo "" >> ~/.bashrc && \
-    echo 'export PATH="$HOME/.composer/vendor/bin:$PATH"' >> ~/.bashrc && \
-    echo "" >> ~/.bashrc && \
-    echo "# Load Custom Aliases" >> ~/.bashrc && \
-    echo "source ~/aliases.sh" >> ~/.bashrc && \
-	  echo "" >> ~/.bashrc && \
-    composer global require laravel/installer laravel/envoy:~1.0 --no-progress
-
-# Switch to root
 USER root
 
+ARG INSTALL_PHP_56=false
+ARG INSTALL_PHP_70=false
+ARG INSTALL_PHP_71=false
+ARG INSTALL_PHP_72=false
+ARG INSTALL_PHP_73=false
+
+RUN if [ ${INSTALL_PHP_56} = true ] \
+    || [ ${INSTALL_PHP_70} = true ] \
+    || [ ${INSTALL_PHP_71} = true ] \
+    || [ ${INSTALL_PHP_72} = true ] \
+    || [ ${INSTALL_PHP_73} = true ] \
+    ; then \
+     apt-get update -yq \
+;fi
+
+ENV INSTALL_PHP_56 ${INSTALL_PHP_56}
+RUN if [ ${INSTALL_PHP_56} = true ]; then \
+  apt-get install -yq --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+    php5.6-bcmath \
+    php5.6-cli \
+    php5.6-common \
+    php5.6-curl \
+    php5.6-dev \
+    php5.6-gd \
+    php5.6-intl \
+    php5.6-json \
+    php5.6-mbstring \
+    php5.6-mcrypt \
+    php5.6-memcached \
+    php5.6-mysql \
+    php5.6-pgsql \
+    php5.6-sqlite \
+    php5.6-sqlite3 \
+    php5.6-zip \
+    php5.6-xdebug \
+    php5.6-xml \
+;fi
+
+ENV INSTALL_PHP_70 ${INSTALL_PHP_70}
+RUN if [ ${INSTALL_PHP_70} = true ]; then \
+  apt-get install -yq --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+    php7.0-bcmath \
+    php7.0-cli \
+    php7.0-common \
+    php7.0-curl \
+    php7.0-dev \
+    php7.0-gd \
+    php7.0-intl \
+    php7.0-json \
+    php7.0-mbstring \
+    php7.0-mcrypt \
+    php7.0-memcached \
+    php7.0-mysql \
+    php7.0-pgsql \
+    php7.0-sqlite \
+    php7.0-sqlite3 \
+    php7.0-zip \
+    php7.0-xdebug \
+    php7.0-xml \
+;fi
+
+ENV INSTALL_PHP_71 ${INSTALL_PHP_71}
+RUN if [ ${INSTALL_PHP_71} = true ]; then \
+  apt-get install -yq --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+    php7.1-bcmath \
+    php7.1-cli \
+    php7.1-common \
+    php7.1-curl \
+    php7.1-dev \
+    php7.1-gd \
+    php7.1-intl \
+    php7.1-json \
+    php7.1-mbstring \
+    php7.1-mcrypt \
+    php7.1-memcached \
+    php7.1-mysql \
+    php7.1-pgsql \
+    php7.1-sqlite \
+    php7.1-sqlite3 \
+    php7.1-zip \
+    php7.1-xdebug \
+    php7.1-xml \
+;fi
+
+ENV INSTALL_PHP_72 ${INSTALL_PHP_72}
+RUN if [ ${INSTALL_PHP_72} = true ]; then \
+  apt-get install -yq --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+    php7.2-bcmath \
+    php7.2-cli \
+    php7.2-common \
+    php7.2-curl \
+    php7.2-dev \
+    php7.2-gd \
+    php7.2-intl \
+    php7.2-json \
+    php7.2-mbstring \
+    php7.2-memcached \
+    php7.2-mysql \
+    php7.2-pgsql \
+    php7.2-sqlite \
+    php7.2-sqlite3 \
+    php7.2-zip \
+    php7.2-xdebug \
+    php7.2-xml \
+;fi
+
+ENV INSTALL_PHP_73 ${INSTALL_PHP_73}
+RUN if [ ${INSTALL_PHP_73} = true ]; then \
+  apt-get install -yq --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+    php7.3-bcmath \
+    php7.3-cli \
+    php7.3-common \
+    php7.3-curl \
+    php7.3-dev \
+    php7.3-gd \
+    php7.3-intl \
+    php7.3-json \
+    php7.3-mbstring \
+    php7.3-memcached \
+    php7.3-mysql \
+    php7.3-pgsql \
+    php7.3-sqlite \
+    php7.3-sqlite3 \
+    php7.3-zip \
+    php7.3-xdebug \
+    php7.3-xml \
+;fi
+
+###########################################################################
+# Swoole EXTENSION
+###########################################################################
+
+ARG INSTALL_PHP_SWOOLE=false
+RUN if [ ${INSTALL_PHP_SWOOLE} = true ]; then \
+    # Install Php Swoole Extension
+    if [ ${INSTALL_PHP_56} = true ]; then \
+      pecl -q install swoole-2.0.10; \
+    fi \
+    && if [ ${INSTALL_PHP_70} = true ]; then \
+      pecl install swoole-2.2.0; \
+    fi \
+    && pecl install swoole \
+    && echo "extension=swoole.so" >> /etc/php/swoole.ini \
+    && if [ ${INSTALL_PHP_56} = true ]; then \
+      ln -s /etc/php/swoole.ini /etc/php/5.6/cli/conf.d/20-swoole.ini \
+      && php5.6 -m | grep -q 'swoole' \
+    ;fi \
+    && if [ ${INSTALL_PHP_70} = true ]; then \
+      ln -s /etc/php/swoole.ini /etc/php/7.0/cli/conf.d/20-swoole.ini \
+      && php7.0 -m | grep -q 'swoole' \
+    ;fi \
+    && if [ ${INSTALL_PHP_71} = true ]; then \
+      ln -s /etc/php/swoole.ini /etc/php/7.1/cli/conf.d/20-swoole.ini \
+      && php7.1 -m | grep -q 'swoole' \
+    ;fi \
+    && if [ ${INSTALL_PHP_72} = true ]; then \
+      ln -s /etc/php/swoole.ini /etc/php/7.2/cli/conf.d/20-swoole.ini \
+      && php7.2 -m | grep -q 'swoole' \
+    ;fi \
+    && if [ ${INSTALL_PHP_73} = true ]; then \
+      ln -s /etc/php/swoole.ini /etc/php/7.3/cli/conf.d/20-swoole.ini \
+      && php7.3 -m | grep -q 'swoole' \
+    ;fi \
+;fi
+
 RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    rm /var/log/lastlog /var/log/faillog
-
-# Set default work directory
-WORKDIR /var/www
-
-CMD ["/entrypoint.sh"]
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

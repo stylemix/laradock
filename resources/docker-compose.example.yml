@@ -19,14 +19,13 @@ services:
 
   ### Workspace Utilities ##################################
   workspace:
-    image: azamatx/laradock-workspace
+    build:
+      context: ./images/workspace
     volumes:
       - ./etc/composer-auth.json:/home/laradock/.composer/auth.json
       - ./etc/supervisor:/etc/supervisord.d
       - ./etc/xdebug.ini:/etc/php/7.1/cli/conf.d/xdebug.ini
       - ./var/log/xdebug:/var/log/xdebug
-    ports:
-      - "22:22"
     tty: true
     networks:
       - frontend
@@ -39,8 +38,6 @@ services:
       - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - ./var/log/php-fpm/:/var/log/php-fpm
       - ./var/xdebug:/var/www/xdebug
-    expose:
-      - "9000"
     networks:
       - backend
       - frontend
@@ -50,8 +47,6 @@ services:
       - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - ./var/log/php-fpm/:/var/log/php-fpm
       - ./var/xdebug:/var/www/xdebug
-    expose:
-      - "9000"
     networks:
       - backend
       - frontend
@@ -61,8 +56,6 @@ services:
       - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - ./var/log/php-fpm/:/var/log/php-fpm
       - ./var/xdebug:/var/www/xdebug
-    expose:
-      - "9000"
     networks:
       - backend
       - frontend
@@ -74,9 +67,6 @@ services:
       - ./var/log/nginx/:/var/log/nginx
       - ./etc/sites:/etc/nginx/sites-available
       - ./etc/ssl:/etc/nginx/ssl
-    ports:
-      - "80:80"
-      - "443:443"
     networks:
       - frontend
       - backend
@@ -88,8 +78,6 @@ services:
       - mysql:/var/lib/mysql
       - ./etc/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./etc/initdb:/docker-entrypoint-initdb.d
-    ports:
-      - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=secret
     networks:
@@ -113,8 +101,6 @@ services:
       - PMA_USER=root
       - PMA_PASSWORD=secret
       - PMA_ROOT_PASSWORD=secret
-    ports:
-      - "81:80"
     depends_on:
       - mariadb
     networks:
@@ -135,9 +121,6 @@ services:
       memlock:
         soft: -1
         hard: -1
-    ports:
-      - "9200"
-      - "9300"
     networks:
       - frontend
       - backend
@@ -145,8 +128,6 @@ services:
   ### Mailhog ################################################
   mailhog:
     image: mailhog/mailhog
-    ports:
-      - "8025:8025"
     networks:
       - backend
       - frontend

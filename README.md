@@ -11,17 +11,26 @@ Docker compose: https://docs.docker.com/compose/install/
 ## Installation
 
 Git clone to preferred directory
+
+#### Mac / Linux
+
 ```bash
-git clone https://github.com/stylemix/laradock.git ~/laradock && cd laradock
+git clone https://github.com/stylemix/laradock.git ~/laradock && cd ~/laradock
+```
+
+#### Windows
+
+```bash
+git clone https://github.com/stylemix/laradock.git C:\laradock && cd C:\laradock
 ```
 
 then run init command to create `config.yml` and initial config files:
 ```bash
 # Mac / Linux...
-bash init.sh
+./laradock init
 
 # Windows...
-init.bat
+laradock.bat init
 ```
 
 ## Configuring
@@ -58,16 +67,62 @@ The lines you add to this file will look like the following:
 127.0.0.1 project1.loc
 ```
 
+### Accessing Laradock Globally
+
+You may want run commands on your Laradock from anywhere on your filesystem.
+You can do this on Mac / Linux systems by adding a Bash function to your Bash profile.
+On Windows, you may accomplish this by adding a "batch" file to your PATH.
+These scripts will allow you to run any Laradock command from anywhere on your system
+and will automatically point that command to your Laradock installation:
+
+#### Mac / Linux
+
+```bash
+function laradock() {
+    (cd ~/laradock && ./laradock $*)
+}
+```
+
+Make sure to tweak the ~/laradock path in the function to the location of your actual Laradock installation.
+Once the function is installed, you may run commands like `laradock up` or `laradock ssh` from anywhere on your system.
+
+#### Windows
+
+Create a `laradock.bat` batch file anywhere on your machine with the following contents:
+
+```
+@echo off
+
+set cwd=%cd%
+set laradockDir=C:\laradock
+
+cd /d %laradockDir% && laradock.bat %*
+cd /d %cwd%
+
+set cwd=
+set laradockDir=
+```
+
 ## Start containers
 
 ```bash
-./up.bat
+laradock up
 ```
+
 It triggers regenerating `docker-compose.yml` and starting services.
 
 ## SSH into workspace
 
 Login as `laradock` user:
 ```bash
-./bash.bat
+laradock ssh
 ```
+
+## SUDO
+
+You can execute `sudo` command being logged in as `laradock` user. 
+Password is **`secret`**.
+
+## More
+
+- [PHP versions](docs/php_versions.md)

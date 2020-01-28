@@ -1,12 +1,34 @@
 folders:
-  - map: ~/code
-    to: /var/laradock/code
+  - map: ~/project1
+    to: /home/project1/code
 
 sites:
-  - map: laradock.loc
-    root: /var/laradock/code/public
+  - map: project1.loc
+    to: /home/laradock/project1/public
+
+ports:
+  nginx:
+    - "80:80"
+    - "443:443"
+  phpmyadmin:
+    - "81:80"
+  mailhog:
+    - "8025:8025"
+  elasticsearch6:
+    - "9200:9200"
+
+#php:
+#  versions:
+#    - "5.6"
+#    - "7.0"
+#    - "7.1"
+#    - "7.2"
+#    - "7.3"
+#  extensions:
+#    - swoole
 
 #features:
+#  ohmyzsh: true
 #  elasticsearch:
 #    - 6
 #    - 7

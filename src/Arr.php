@@ -1,6 +1,6 @@
 <?php
 
-namespace Docker;
+namespace Laradock;
 
 use ArrayAccess;
 use InvalidArgumentException;
@@ -50,10 +50,7 @@ class Arr
 		$results = [];
 
 		foreach ($array as $values) {
-			if ($values instanceof Collection) {
-				$values = $values->all();
-			}
-			elseif (!is_array($values)) {
+			if (!is_array($values)) {
 				continue;
 			}
 
@@ -220,8 +217,6 @@ class Arr
 		$result = [];
 
 		foreach ($array as $item) {
-			$item = $item instanceof Collection ? $item->all() : $item;
-
 			if (!is_array($item)) {
 				$result[] = $item;
 			}
@@ -581,19 +576,6 @@ class Arr
 		}
 
 		return $array;
-	}
-
-	/**
-	 * Sort the array using the given callback or "dot" notation.
-	 *
-	 * @param array $array
-	 * @param callable|string|null $callback
-	 *
-	 * @return array
-	 */
-	public static function sort($array, $callback = null)
-	{
-		return Collection::make($array)->sortBy($callback)->all();
 	}
 
 	/**

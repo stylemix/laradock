@@ -1,13 +1,60 @@
-#!/usr/bin/env php
-<?php
-require __DIR__.'/vendor/autoload.php';
-require __DIR__.'/src/helpers.php';
+#!/usr/bin/env bash
+CMD=$1
+COMPOSE_FILE=./var/docker-compose.yml
 
-use Symfony\Component\Console\Application;
+if [[ $CMD == "init" ]]; then
+	docker run --rm --interactive --tty \
+		-v $PWD:/app \
+		composer install --no-dev --no-progress --no-suggest
+	cp -i resources/config.example.yml config.yml
+	cp -i resources/env.example .env
+	cp -i resources/my.example.cnf etc/my.cnf
+	cp -i resources/composer-auth.example.json etc/composer-auth.json
+	cp -i resources/xdebug.example.ini etc/xdebug.ini
 
-$application = new Application();
+	echo "Laradock initialized!"
+fi
 
-// ... register commands
-$application->add(new \Docker\Commands\GenerateCommand());
+if [[ $CMD == "up" ]]; then
+	docker run --rm -ti -v $PWD:/laradock -w /laradock php:7.2 php src/generate.php
+	docker-compose -f $COMPOSE_FILE --project-directory . up -d --remove-orphans
+fi
 
-$application->run();
+if [[ $CMD == "ssh" ]]; then
+	docker-compose -f $COMPOSE_FILE --project-directory . exec -u laradock workspace $(cat ./var/shell)
+fi
+
+if [[ $CMD == "root" ]]; then
+	docker-compose -f $COMPOSE_FILE --project-directory . exec -u root workspace bash
+fi
+
+if [[ $CMD == "down" ]]; then
+	docker-compose -f $COMPOSE_FILE --project-directory . down ${@:2}
+fi
+
+if [[ $CMD == "ps" ]]; then
+	docker-compose -f $COMPOSE_FILE --project-directory . ps ${@:2}
+fi
+
+if [[ $CMD == "logs" ]]; then
+	docker-compose -f $COMPOSE_FILE --project-directory . logs ${@:2}
+fi
+
+if [[ $CMD == "exec" ]]; then
+	docker-compose -f $COMPOSE_FILE --project-directory . exec ${@:2}
+fi
+
+if [[ $CMD == "rebuild" ]]; then
+	docker run --rm -ti -v $PWD:/laradock -w /laradock php:7.2 php src/generate.php
+	docker-compose -f $COMPOSE_FILE --project-directory . build --pull --force-rm
+fi
+
+if [[ $CMD == "upgrade" ]]; then
+	git fetch
+	git reset --hard origin/master
+	docker run --rm --interactive --tty \
+		-v $PWD:/app \
+		composer install --no-dev --no-progress --no-suggest
+	./laradock rebuild
+	echo "Laradock upgraded!"
+fi
