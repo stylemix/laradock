@@ -18,7 +18,7 @@ IF /I %CMD% == init (
 
 if /I %CMD% == up (
 	docker run --rm -ti -v %PWD%:/laradock -w /laradock php:7.2 php src/generate.php
-	docker-compose -f %COMPOSE_FILE% --project-directory . up -d --remove-orphans
+	docker-compose -f %COMPOSE_FILE% --project-directory . up -d --remove-orphans %2 %3 %4 %5 %6 %7 %8 %9 %10
 )
 
 if /I %CMD% == ssh (
@@ -45,9 +45,14 @@ if /I %CMD% == exec (
 	docker-compose -f %COMPOSE_FILE% --project-directory . exec %2 %3 %4 %5 %6 %7 %8 %9 %10
 )
 
+if /I %CMD% == restart (
+	docker-compose -f %COMPOSE_FILE% --project-directory . restart %2 %3 %4 %5 %6 %7 %8 %9 %10
+)
+
 if /I %CMD% == rebuild (
 	docker run --rm -ti -v %PWD%:/laradock -w /laradock php:7.2 php src/generate.php
 	docker-compose -f %COMPOSE_FILE% --project-directory . build --pull --force-rm
+	docker-compose -f %COMPOSE_FILE% --project-directory . up -d --remove-orphans
 )
 
 if /I %CMD% == upgrade (

@@ -23,6 +23,8 @@ services:
       context: ./images/workspace
     volumes:
       - ./etc/composer-auth.json:/home/laradock/.composer/auth.json
+      - ./etc/.zshrc:/home/laradock/.zshrc
+      - ./etc/.zshrc:/root/.zshrc
       - ./etc/supervisor:/etc/supervisord.d
       - ./etc/xdebug.ini:/etc/php/7.1/cli/conf.d/xdebug.ini
       - ./var/log/xdebug:/var/log/xdebug

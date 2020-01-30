@@ -20,12 +20,9 @@ RUN if [ ${INSTALL_OH_MY_ZSH} = true ]; then \
     && chsh -s $(which zsh) laradock \
 ;fi
 
-USER laradock
 RUN if [ ${INSTALL_OH_MY_ZSH} = true ]; then \
-    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended" \
+    sh -c "ZSH=/usr/local/oh-my-zsh $(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended" \
 ;fi
-
-USER root
 
 ARG INSTALL_PHP_56=false
 ARG INSTALL_PHP_70=false

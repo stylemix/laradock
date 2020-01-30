@@ -2,22 +2,27 @@
 CMD=$1
 COMPOSE_FILE=./var/docker-compose.yml
 
+function laradock_init_files() {
+	OPTIONS=$1
+	cp $OPTIONS resources/config.example.yml config.yml
+	cp $OPTIONS resources/env.example .env
+	cp $OPTIONS resources/my.example.cnf etc/my.cnf
+	cp $OPTIONS resources/composer-auth.example.json etc/composer-auth.json
+	cp $OPTIONS resources/xdebug.example.ini etc/xdebug.ini
+	cp $OPTIONS resources/zshrc.example etc/.zshrc
+}
+
 if [[ $CMD == "init" ]]; then
 	docker run --rm --interactive --tty \
 		-v $PWD:/app \
 		composer install --no-dev --no-progress --no-suggest
-	cp -i resources/config.example.yml config.yml
-	cp -i resources/env.example .env
-	cp -i resources/my.example.cnf etc/my.cnf
-	cp -i resources/composer-auth.example.json etc/composer-auth.json
-	cp -i resources/xdebug.example.ini etc/xdebug.ini
-
+	laradock_init_files "-i"
 	echo "Laradock initialized!"
 fi
 
 if [[ $CMD == "up" ]]; then
 	docker run --rm -ti -v $PWD:/laradock -w /laradock php:7.2 php src/generate.php
-	docker-compose -f $COMPOSE_FILE --project-directory . up -d --remove-orphans
+	docker-compose -f $COMPOSE_FILE --project-directory . up -d --remove-orphans ${@:2}
 fi
 
 if [[ $CMD == "ssh" ]]; then
@@ -44,14 +49,22 @@ if [[ $CMD == "exec" ]]; then
 	docker-compose -f $COMPOSE_FILE --project-directory . exec ${@:2}
 fi
 
+if [[ $CMD == "restart" ]]; then
+	docker-compose -f $COMPOSE_FILE --project-directory . restart ${@:2}
+fi
+
 if [[ $CMD == "rebuild" ]]; then
 	docker run --rm -ti -v $PWD:/laradock -w /laradock php:7.2 php src/generate.php
 	docker-compose -f $COMPOSE_FILE --project-directory . build --pull --force-rm
+	docker-compose -f $COMPOSE_FILE --project-directory . up -d --remove-orphans
 fi
 
 if [[ $CMD == "upgrade" ]]; then
 	git fetch
 	git reset --hard origin/master
+	# copy example config files that are missed only
+	# existing ones will be preserved
+	laradock_init_files "-n"
 	docker run --rm --interactive --tty \
 		-v $PWD:/app \
 		composer install --no-dev --no-progress --no-suggest
