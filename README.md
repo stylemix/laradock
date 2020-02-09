@@ -53,7 +53,7 @@ folders:
 ```yaml
 sites:
   - map: project1.loc
-    to: /var/laradock/project1/public
+    to: /home/laradock/project1/public
 ```
 
 ### Hostname Resolution
@@ -122,6 +122,15 @@ laradock ssh
 
 You can execute `sudo` command being logged in as `laradock` user. 
 Password is **`secret`**.
+
+## Persistence
+
+Data generated in Docker containers are not persistent except those 
+that are mapped to your host filesystem.
+Read more about it here https://docs.docker.com/storage/.
+
+Home directory `/home/laradock` in workspace container is mapped as local volume (https://docs.docker.com/storage/volumes/), 
+so all data in that directory are persistent.
 
 ## More
 

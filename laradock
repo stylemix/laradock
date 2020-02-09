@@ -7,9 +7,7 @@ function laradock_init_files() {
 	cp $OPTIONS resources/config.example.yml config.yml
 	cp $OPTIONS resources/env.example .env
 	cp $OPTIONS resources/my.example.cnf etc/my.cnf
-	cp $OPTIONS resources/composer-auth.example.json etc/composer-auth.json
 	cp $OPTIONS resources/xdebug.example.ini etc/xdebug.ini
-	cp $OPTIONS resources/zshrc.example etc/.zshrc
 }
 
 if [[ $CMD == "init" ]]; then

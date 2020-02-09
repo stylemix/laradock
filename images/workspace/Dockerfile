@@ -10,33 +10,34 @@ RUN if [ ${CHANGE_SOURCE} = true ]; then \
     rm -rf /tmp/sources.sh \
 ;fi
 
-###########################################################################
-# Oh-my-zsh
-###########################################################################
-ARG INSTALL_OH_MY_ZSH=false
-RUN if [ ${INSTALL_OH_MY_ZSH} = true ]; then \
-    apt-get update -yq && apt-get install -yq zsh \
-    && zsh --version \
-    && chsh -s $(which zsh) laradock \
-;fi
-
-RUN if [ ${INSTALL_OH_MY_ZSH} = true ]; then \
-    sh -c "ZSH=/usr/local/oh-my-zsh $(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended" \
-;fi
-
 ARG INSTALL_PHP_56=false
 ARG INSTALL_PHP_70=false
 ARG INSTALL_PHP_71=false
 ARG INSTALL_PHP_72=false
 ARG INSTALL_PHP_73=false
+ARG INSTALL_OH_MY_ZSH=false
 
 RUN if [ ${INSTALL_PHP_56} = true ] \
     || [ ${INSTALL_PHP_70} = true ] \
     || [ ${INSTALL_PHP_71} = true ] \
     || [ ${INSTALL_PHP_72} = true ] \
     || [ ${INSTALL_PHP_73} = true ] \
+    || [ ${INSTALL_OH_MY_ZSH} = true ] \
     ; then \
      apt-get update -yq \
+;fi
+
+###########################################################################
+# Oh-my-zsh
+###########################################################################
+RUN if [ ${INSTALL_OH_MY_ZSH} = true ]; then \
+    apt-get install -yq zsh \
+    && zsh --version \
+    && chsh -s $(which zsh) laradock \
+;fi
+
+RUN if [ ${INSTALL_OH_MY_ZSH} = true ]; then \
+    sh -c "ZSH=/usr/local/oh-my-zsh $(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended" \
 ;fi
 
 ENV INSTALL_PHP_56 ${INSTALL_PHP_56}
