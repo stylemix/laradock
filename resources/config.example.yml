@@ -27,6 +27,11 @@ ports:
 #  extensions:
 #    - swoole
 
+#nodejs:
+#  versions:
+#    - "node"
+#  yarn: latest
+
 #features:
 #  ohmyzsh: true
 #  elasticsearch:

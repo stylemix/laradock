@@ -179,6 +179,33 @@ RUN if [ ${INSTALL_PHP_SWOOLE} = true ]; then \
     && /etc/laradock/php-swoole.sh 7.4 \
 ;fi
 
+###########################################################################
+# Node / NVM:
+###########################################################################
+
+ENV PROFILE /etc/laradock/profile.sh
+ENV NVM_DIR /usr/local/nvm
+ARG INSTALL_NODEJS=false
+ARG INSTALL_YARN=false
+ARG YARN_VERSION=latest
+COPY nodejs.sh /etc/laradock
+RUN if [ ${INSTALL_NODEJS} != false ]; then \
+    mkdir -p $NVM_DIR \
+    && chmod +x /etc/laradock/nodejs.sh \
+    && INSTALL_NODEJS=${INSTALL_NODEJS} bash /etc/laradock/nodejs.sh \
+;fi
+RUN if [ ${INSTALL_NODEJS} != false ] && [ ${INSTALL_YARN} = true ]; then \
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
+    if [ ${YARN_VERSION} = "latest" ]; then \
+        curl -o- -L https://yarnpkg.com/install.sh | bash; \
+    else \
+        curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version ${YARN_VERSION}; \
+    fi && \
+    mv /root/.yarn /usr/local/yarn && \
+    # Update to correct PATH to Yarn in profile config
+    sed -i 's/\$HOME\/.yarn/\/usr\/local\/yarn/' $PROFILE \
+;fi
+
 RUN apt-get clean && \
     rm -f /etc/service/sshd/down && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

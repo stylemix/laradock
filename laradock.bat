@@ -17,7 +17,7 @@ IF /I %CMD% == init (
 
 if /I %CMD% == up (
 	docker run --rm -ti -v %PWD%:/laradock -w /laradock php:7.2 php src/generate.php
-	docker-compose -f %COMPOSE_FILE% --project-directory . up -d --remove-orphans %2 %3 %4 %5 %6 %7 %8 %9 %10
+	docker-compose -f %COMPOSE_FILE% --project-directory . up -d --remove-orphans %2 %3 %4 %5 %6 %7 %8 %9
 )
 
 if /I %CMD% == ssh (
@@ -29,23 +29,23 @@ if /I %CMD% == root (
 )
 
 if /I %CMD% == down (
-	docker-compose -f %COMPOSE_FILE% --project-directory . down %2 %3 %4 %5 %6 %7 %8 %9 %10
+	docker-compose -f %COMPOSE_FILE% --project-directory . down %2 %3 %4 %5 %6 %7 %8 %9
 )
 
 if /I %CMD% == ps (
-	docker-compose -f %COMPOSE_FILE% --project-directory . ps %2 %3 %4 %5 %6 %7 %8 %9 %10
+	docker-compose -f %COMPOSE_FILE% --project-directory . ps %2 %3 %4 %5 %6 %7 %8 %9
 )
 
 if /I %CMD% == logs (
-	docker-compose -f %COMPOSE_FILE% --project-directory . logs %2 %3 %4 %5 %6 %7 %8 %9 %10
+	docker-compose -f %COMPOSE_FILE% --project-directory . logs %2 %3 %4 %5 %6 %7 %8 %9
 )
 
 if /I %CMD% == exec (
-	docker-compose -f %COMPOSE_FILE% --project-directory . exec %2 %3 %4 %5 %6 %7 %8 %9 %10
+	docker-compose -f %COMPOSE_FILE% --project-directory . exec %2 %3 %4 %5 %6 %7 %8 %9
 )
 
 if /I %CMD% == restart (
-	docker-compose -f %COMPOSE_FILE% --project-directory . restart %2 %3 %4 %5 %6 %7 %8 %9 %10
+	docker-compose -f %COMPOSE_FILE% --project-directory . restart %2 %3 %4 %5 %6 %7 %8 %9
 )
 
 if /I %CMD% == rebuild (

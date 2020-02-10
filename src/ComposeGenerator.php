@@ -208,6 +208,16 @@ class ComposeGenerator
 			return 'INSTALL_PHP_' . strtoupper($extension) . '=true';
 		}, $phpExtensions));
 
+		$nodejsVersions = Arr::wrap(Arr::get($this->config, 'nodejs.versions', []));
+		if (count($nodejsVersions)) {
+			$this->configMerge('services.workspace.build.args', [
+				'INSTALL_NODEJS=true',
+				'INSTALL_NODEJS_VERSIONS=' . join(',', $nodejsVersions),
+				'INSTALL_YARN=true',
+				'INSTALL_YARN_VERSION=' . Arr::get($this->config, 'nodejs.yarn', 'latest'),
+			]);
+		}
+
 		if (isset($this->config['features']['ohmyzsh'])) {
 			$this->configMerge('services.workspace.build.args', ['INSTALL_OH_MY_ZSH=true']);
 		}
