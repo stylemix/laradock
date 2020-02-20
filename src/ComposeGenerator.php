@@ -34,6 +34,8 @@ class ComposeGenerator
 			'elasticsearch6' => true,
 		];
 
+		$this->mapAuthorizedSshKey();
+
 		$this->generateVolumes();
 
 		$this->generateSites();
@@ -113,6 +115,20 @@ class ComposeGenerator
 	public function setOutputFile($outputFile): void
 	{
 		$this->outputFile = $outputFile;
+	}
+
+	/**
+	 * Generate volume mapping from config
+	 */
+	protected function mapAuthorizedSshKey(): void
+	{
+		if (!isset($this->config['authorize'])) {
+			return;
+		}
+
+		$this->configMerge('services.workspace.volumes', [
+			"{$this->config['authorize']}:/etc/laradock/ssh_authorize"
+		]);
 	}
 
 	/**
