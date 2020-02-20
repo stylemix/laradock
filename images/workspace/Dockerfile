@@ -180,4 +180,5 @@ RUN if [ ${INSTALL_PHP_SWOOLE} = true ]; then \
 ;fi
 
 RUN apt-get clean && \
+    rm -f /etc/service/sshd/down && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
