@@ -156,38 +156,27 @@ RUN if [ ${INSTALL_PHP_73} = true ]; then \
 ###########################################################################
 # Swoole EXTENSION
 ###########################################################################
-
+COPY php-swoole.sh /etc/laradock
 ARG INSTALL_PHP_SWOOLE=false
 RUN if [ ${INSTALL_PHP_SWOOLE} = true ]; then \
+    chmod +x /etc/laradock/php-swoole.sh \
     # Install Php Swoole Extension
-    if [ ${INSTALL_PHP_56} = true ]; then \
-      pecl -q install swoole-2.0.10; \
-    fi \
-    && if [ ${INSTALL_PHP_70} = true ]; then \
-      pecl install swoole-2.2.0; \
-    fi \
-    && pecl install swoole \
-    && echo "extension=swoole.so" >> /etc/php/swoole.ini \
     && if [ ${INSTALL_PHP_56} = true ]; then \
-      ln -s /etc/php/swoole.ini /etc/php/5.6/cli/conf.d/20-swoole.ini \
-      && php5.6 -m | grep -q 'swoole' \
-    ;fi \
+      /etc/laradock/php-swoole.sh 5.6; \
+    fi \
     && if [ ${INSTALL_PHP_70} = true ]; then \
-      ln -s /etc/php/swoole.ini /etc/php/7.0/cli/conf.d/20-swoole.ini \
-      && php7.0 -m | grep -q 'swoole' \
-    ;fi \
+      /etc/laradock/php-swoole.sh 7.0; \
+    fi \
     && if [ ${INSTALL_PHP_71} = true ]; then \
-      ln -s /etc/php/swoole.ini /etc/php/7.1/cli/conf.d/20-swoole.ini \
-      && php7.1 -m | grep -q 'swoole' \
-    ;fi \
+      /etc/laradock/php-swoole.sh 7.1; \
+    fi \
     && if [ ${INSTALL_PHP_72} = true ]; then \
-      ln -s /etc/php/swoole.ini /etc/php/7.2/cli/conf.d/20-swoole.ini \
-      && php7.2 -m | grep -q 'swoole' \
-    ;fi \
+      /etc/laradock/php-swoole.sh 7.2; \
+    fi \
     && if [ ${INSTALL_PHP_73} = true ]; then \
-      ln -s /etc/php/swoole.ini /etc/php/7.3/cli/conf.d/20-swoole.ini \
-      && php7.3 -m | grep -q 'swoole' \
-    ;fi \
+      /etc/laradock/php-swoole.sh 7.3; \
+    fi \
+    && /etc/laradock/php-swoole.sh 7.4 \
 ;fi
 
 RUN apt-get clean && \
