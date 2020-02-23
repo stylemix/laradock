@@ -56,6 +56,30 @@ sites:
     to: /home/laradock/project1/public
 ```
 
+### Database Connection
+
+#### Example for Laravel:
+```dotenv
+# MySQL
+DB_HOST=mariadb
+DB_PORT=3306
+DB_USERNAME=root
+DB_PASSWORD=secret
+
+# Redis
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+```
+
+#### Example for WordPress:
+```php
+<?php
+define( 'DB_HOST', 'mariadb' );
+define( 'DB_USER', 'root' );
+define( 'DB_PASSWORD', 'secret' );
+```
+
 ### Hostname Resolution
 
 Add the "domains" for your web sites to the hosts file on your machine. 
