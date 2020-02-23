@@ -9,12 +9,11 @@ require LARADOCK_ROOT . '/vendor/autoload.php';
 require __DIR__ . '/helpers.php';
 
 $templateFile = LARADOCK_ROOT . '/resources/docker-compose.example.yml';
-$configFile = LARADOCK_ROOT . '/config.yml';
 $outputFile = LARADOCK_ROOT . '/var/docker-compose.yml';
 
 $generator = new ComposeGenerator();
 $generator->setTemplateFile($templateFile);
-$generator->setConfigFile($configFile);
+$generator->setConfigFile(getConfigFile());
 $generator->setOutputFile($outputFile);
 $generator->generate();
 

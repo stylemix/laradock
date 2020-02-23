@@ -10,51 +10,72 @@ function laradock_init_files() {
 	cp $OPTIONS resources/xdebug.example.ini etc/xdebug.ini
 }
 
-if [[ $CMD == "init" ]]; then
+function laradock_generate() {
+	docker run --rm -ti -v $PWD:/laradock -w /laradock php:7.2 php src/generate.php
+}
+
+function laradock_composer_install() {
 	docker run --rm --interactive --tty \
 		-v $PWD:/app \
 		composer install --no-dev --no-progress --no-suggest
+}
+
+function laradock_compose() {
+	docker-compose -f $COMPOSE_FILE --project-directory . ${@}
+}
+
+function laradock_info() {
+	docker run --rm -ti -v $PWD:/laradock -w /laradock php:7.2 php src/info.php
+}
+
+if [[ $CMD == "init" ]]; then
+	laradock_composer_install
 	laradock_init_files "-i"
 	echo "Laradock initialized!"
 fi
 
 if [[ $CMD == "up" ]]; then
-	docker run --rm -ti -v $PWD:/laradock -w /laradock php:7.2 php src/generate.php
-	docker-compose -f $COMPOSE_FILE --project-directory . up -d --remove-orphans ${@:2}
+	laradock_generate
+	laradock_compose up -d --remove-orphans ${@:2}
+	laradock_info
+fi
+
+if [[ $CMD == "info" ]]; then
+	laradock_info
 fi
 
 if [[ $CMD == "ssh" ]]; then
-	docker-compose -f $COMPOSE_FILE --project-directory . exec -u laradock workspace $(cat ./var/shell)
+	laradock_compose exec -u laradock workspace $(cat ./var/shell)
 fi
 
 if [[ $CMD == "root" ]]; then
-	docker-compose -f $COMPOSE_FILE --project-directory . exec -u root workspace bash
+	laradock_compose exec -u root workspace bash
 fi
 
 if [[ $CMD == "down" ]]; then
-	docker-compose -f $COMPOSE_FILE --project-directory . down ${@:2}
+	laradock_compose down ${@:2}
 fi
 
 if [[ $CMD == "ps" ]]; then
-	docker-compose -f $COMPOSE_FILE --project-directory . ps ${@:2}
+	laradock_compose ps ${@:2}
 fi
 
 if [[ $CMD == "logs" ]]; then
-	docker-compose -f $COMPOSE_FILE --project-directory . logs ${@:2}
+	laradock_compose logs ${@:2}
 fi
 
 if [[ $CMD == "exec" ]]; then
-	docker-compose -f $COMPOSE_FILE --project-directory . exec ${@:2}
+	laradock_compose exec ${@:2}
 fi
 
 if [[ $CMD == "restart" ]]; then
-	docker-compose -f $COMPOSE_FILE --project-directory . restart ${@:2}
+	laradock_compose restart ${@:2}
 fi
 
 if [[ $CMD == "rebuild" ]]; then
-	docker run --rm -ti -v $PWD:/laradock -w /laradock php:7.2 php src/generate.php
-	docker-compose -f $COMPOSE_FILE --project-directory . build --pull --force-rm
-	docker-compose -f $COMPOSE_FILE --project-directory . up -d --remove-orphans
+	laradock_generate
+	laradock_compose build --pull --force-rm
+	laradock_compose up -d --remove-orphans
 fi
 
 if [[ $CMD == "upgrade" ]]; then
@@ -63,9 +84,7 @@ if [[ $CMD == "upgrade" ]]; then
 	# copy example config files that are missed only
 	# existing ones will be preserved
 	laradock_init_files "-n"
-	docker run --rm --interactive --tty \
-		-v $PWD:/app \
-		composer install --no-dev --no-progress --no-suggest
+	laradock_composer_install
 	./laradock rebuild
 	echo "Laradock upgraded!"
 fi

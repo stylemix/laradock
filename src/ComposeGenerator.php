@@ -15,7 +15,10 @@ class ComposeGenerator
 
 	protected $compose = [];
 
-	protected $config = [];
+	/**
+	 * @var \Laradock\Config
+	 */
+	protected $config;
 
 	protected $excludeServices = [];
 
@@ -26,7 +29,7 @@ class ComposeGenerator
 	{
 		$this->readTemplate();
 
-		$this->config = Yaml::parse(file_get_contents($this->configFile));
+		$this->config = Config::fromFile($this->configFile);
 		$this->excludeServices = [
 			'php-fpm-71' => true,
 			'php-fpm-72' => true,
@@ -66,7 +69,7 @@ class ComposeGenerator
 	 */
 	public function resolveShell(): string
 	{
-		return isset($this->config['features']['ohmyzsh']) ? 'zsh' : 'bash';
+		return $this->config->get('features.ohmyzsh') ? 'zsh' : 'bash';
 	}
 
 	/**
@@ -122,7 +125,7 @@ class ComposeGenerator
 	 */
 	protected function mapAuthorizedSshKey(): void
 	{
-		if (!isset($this->config['authorize'])) {
+		if (!$this->config['authorize']) {
 			return;
 		}
 
@@ -136,23 +139,25 @@ class ComposeGenerator
 	 */
 	protected function generateVolumes(): void
 	{
-		if (isset($this->config['folders'])) {
-			$volumes = [];
+		if (!$this->validateIndexedArray('folders')) {
+			return;
+		}
 
-			foreach ($this->config['folders'] as $folder) {
-				$volumes[] = $folder['map'] . ':' . $folder['to'] . '${APP_CODE_CONTAINER_FLAG}';
-			}
+		$volumes = [];
 
-			$services = [
-				'workspace',
-				'nginx',
-				'php-fpm-71',
-				'php-fpm-72',
-				'php-fpm-73',
-			];
-			foreach ($services as $service) {
-				$this->configMerge("services.{$service}.volumes", $volumes);
-			}
+		foreach ($this->config->get('folders', []) as $folder) {
+			$volumes[] = $folder['map'] . ':' . $folder['to'] . '${APP_CODE_CONTAINER_FLAG}';
+		}
+
+		$services = [
+			'workspace',
+			'nginx',
+			'php-fpm-71',
+			'php-fpm-72',
+			'php-fpm-73',
+		];
+		foreach ($services as $service) {
+			$this->configMerge("services.{$service}.volumes", $volumes);
 		}
 	}
 
@@ -161,27 +166,29 @@ class ComposeGenerator
 	 */
 	protected function generateSites(): void
 	{
-		if (isset($this->config['sites'])) {
-			$sitesDir = __DIR__ . "/../etc/sites";
-			if (!is_dir($sitesDir)) {
-				mkdir($sitesDir, 0644, true);
-			}
+		if (!$this->validateIndexedArray('sites')) {
+			return;
+		}
 
-			$template = file_get_contents(__DIR__ . '/../resources/vhost.example.conf');
-			foreach ($this->config['sites'] as $site) {
-				$site += [
-					'php' => '7.2',
-				];
-				$fpmService = 'php-fpm-' . str_replace('.', '', $site['php']);
-				file_put_contents(__DIR__ . "/../etc/sites/{$site['map']}.conf", strtr($template, [
-					'${domain}' => $site['map'],
-					'${root}' => $site['to'],
-					'${upstream}' => "{$fpmService}:9000",
-				]));
+		$sitesDir = __DIR__ . "/../etc/sites";
+		if (!is_dir($sitesDir)) {
+			mkdir($sitesDir, 0644, true);
+		}
 
-				// remove php-fpm version from excluded services
-				unset($this->excludeServices[$fpmService]);
-			}
+		$template = file_get_contents(__DIR__ . '/../resources/vhost.example.conf');
+		foreach ($this->config->get('sites', []) as $site) {
+			$site += [
+				'php' => '7.2',
+			];
+			$fpmService = 'php-fpm-' . str_replace('.', '', $site['php']);
+			file_put_contents(__DIR__ . "/../etc/sites/{$site['map']}.conf", strtr($template, [
+				'${domain}' => $site['map'],
+				'${root}' => $site['to'],
+				'${upstream}' => "{$fpmService}:9000",
+			]));
+
+			// remove php-fpm version from excluded services
+			unset($this->excludeServices[$fpmService]);
 		}
 	}
 
@@ -190,25 +197,25 @@ class ComposeGenerator
 	 */
 	protected function generateWorkspaceArgs(): void
 	{
-		if (isset($this->config['ubuntu_source'])) {
+		if ($this->config['ubuntu_source']) {
 			$this->configMerge('services.workspace.build.args', [
 				'CHANGE_SOURCE=true',
 				'UBUNTU_SOURCE=' . $this->config['ubuntu_source'],
 			]);
 		}
 
-		$phpVersions = Arr::wrap(Arr::get($this->config, 'php.versions', []));
+		$phpVersions = Arr::wrap($this->config->get( 'php.versions', []));
 		$phpVersions = array_intersect($phpVersions, ['5.6', '7.0', '7.1', '7.2', '7.3']);
 		$this->configMerge('services.workspace.build.args', array_map(function ($version) {
 			return 'INSTALL_PHP_' . str_replace('.', '', $version) . '=true';
 		}, $phpVersions));
 
-		$phpExtensions = Arr::wrap(Arr::get($this->config, 'php.extensions', []));
+		$phpExtensions = Arr::wrap($this->config->get('php.extensions', []));
 		$this->configMerge('services.workspace.build.args', array_map(function ($extension) {
 			return 'INSTALL_PHP_' . strtoupper($extension) . '=true';
 		}, $phpExtensions));
 
-		$nodejsVersions = Arr::wrap(Arr::get($this->config, 'nodejs.versions', []));
+		$nodejsVersions = Arr::wrap($this->config->get('nodejs.versions', []));
 		if (count($nodejsVersions)) {
 			$this->configMerge('services.workspace.build.args', [
 				'INSTALL_NODEJS=true',
@@ -218,14 +225,14 @@ class ComposeGenerator
 			]);
 		}
 
-		if (isset($this->config['features']['ohmyzsh'])) {
+		if ($this->config->get('features.ohmyzsh') == 'true') {
 			$this->configMerge('services.workspace.build.args', ['INSTALL_OH_MY_ZSH=true']);
 		}
 	}
 
 	protected function generatePortMappings(): void
 	{
-		if (!isset($this->config['ports'])) {
+		if (!$this->config['ports']) {
 			echo Color::yellow() . 'WARNING: ';
 			echo Color::reset() . 'No port mappings are available. You may not be able to use the services from your host.' . PHP_EOL;
 			return;
@@ -233,7 +240,7 @@ class ComposeGenerator
 
 		$services = array_keys($this->compose['services']);
 		foreach ($services as $service) {
-			$ports = Arr::wrap(Arr::get($this->config['ports'], $service, []));
+			$ports = Arr::wrap($this->config->get('ports.' . $service, []));
 			if (empty($ports)) {
 				continue;
 			}
@@ -247,10 +254,26 @@ class ComposeGenerator
 	 */
 	protected function configureOptionalServices(): void
 	{
-		if (isset($this->config['features']['elasticsearch'])) {
-			if (in_array(6, Arr::wrap($this->config['features']['elasticsearch']))) {
+		if ($this->config->get('features.elasticsearch')) {
+			if (in_array(6, Arr::wrap($this->config->get('features.elasticsearch')))) {
 				unset($this->excludeServices['elasticsearch6']);
 			}
 		}
+	}
+
+	/**
+	 * @param string $key
+	 *
+	 * @return bool
+	 */
+	protected function validateIndexedArray(string $key): bool
+	{
+		$valid = is_array($this->config[$key]) && !Arr::isAssoc($this->config[$key]);
+		if (!$valid) {
+			echo Color::yellow() . 'WARNING: ';
+			echo Color::reset() . "Something wrong with your ${key} configuration. Please, refer to docs for proper format." . PHP_EOL;
+		}
+
+		return $valid;
 	}
 }

@@ -18,6 +18,11 @@ IF /I %CMD% == init (
 if /I %CMD% == up (
 	docker run --rm -ti -v %PWD%:/laradock -w /laradock php:7.2 php src/generate.php
 	docker-compose -f %COMPOSE_FILE% --project-directory . up -d --remove-orphans %2 %3 %4 %5 %6 %7 %8 %9
+	docker run --rm -ti -v %PWD%:/laradock -w /laradock php:7.2 php src/info.php
+)
+
+if /I %CMD% == info (
+	docker run --rm -ti -v %PWD%:/laradock -w /laradock php:7.2 php src/info.php
 )
 
 if /I %CMD% == ssh (
