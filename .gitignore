@@ -1,8 +1,6 @@
 /vendor
 .env
 config.yml
-docker-compose.yml
-/.project
-/.docker-sync
+docker-compose.override.yml
 /.idea
 .DS_Store
