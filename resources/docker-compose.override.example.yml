@@ -1,0 +1,4 @@
+# Here you can add your custom docker-compose configuration.
+# More information about merge strategy see here: https://docs.docker.com/compose/extends/.
+
+version: '3'
