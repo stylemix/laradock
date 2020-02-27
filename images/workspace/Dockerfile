@@ -13,15 +13,11 @@ RUN if [ ${CHANGE_SOURCE} = true ]; then \
 ARG INSTALL_PHP_56=false
 ARG INSTALL_PHP_70=false
 ARG INSTALL_PHP_71=false
-ARG INSTALL_PHP_72=false
-ARG INSTALL_PHP_73=false
 ARG INSTALL_OH_MY_ZSH=false
 
 RUN if [ ${INSTALL_PHP_56} = true ] \
     || [ ${INSTALL_PHP_70} = true ] \
     || [ ${INSTALL_PHP_71} = true ] \
-    || [ ${INSTALL_PHP_72} = true ] \
-    || [ ${INSTALL_PHP_73} = true ] \
     || [ ${INSTALL_OH_MY_ZSH} = true ] \
     ; then \
      apt-get update -yq \
@@ -109,50 +105,6 @@ RUN if [ ${INSTALL_PHP_71} = true ]; then \
     php7.1-xml \
 ;fi
 
-ENV INSTALL_PHP_72 ${INSTALL_PHP_72}
-RUN if [ ${INSTALL_PHP_72} = true ]; then \
-  apt-get install -yq --allow-downgrades --allow-remove-essential --allow-change-held-packages \
-    php7.2-bcmath \
-    php7.2-cli \
-    php7.2-common \
-    php7.2-curl \
-    php7.2-dev \
-    php7.2-gd \
-    php7.2-intl \
-    php7.2-json \
-    php7.2-mbstring \
-    php7.2-memcached \
-    php7.2-mysql \
-    php7.2-pgsql \
-    php7.2-sqlite \
-    php7.2-sqlite3 \
-    php7.2-zip \
-    php7.2-xdebug \
-    php7.2-xml \
-;fi
-
-ENV INSTALL_PHP_73 ${INSTALL_PHP_73}
-RUN if [ ${INSTALL_PHP_73} = true ]; then \
-  apt-get install -yq --allow-downgrades --allow-remove-essential --allow-change-held-packages \
-    php7.3-bcmath \
-    php7.3-cli \
-    php7.3-common \
-    php7.3-curl \
-    php7.3-dev \
-    php7.3-gd \
-    php7.3-intl \
-    php7.3-json \
-    php7.3-mbstring \
-    php7.3-memcached \
-    php7.3-mysql \
-    php7.3-pgsql \
-    php7.3-sqlite \
-    php7.3-sqlite3 \
-    php7.3-zip \
-    php7.3-xdebug \
-    php7.3-xml \
-;fi
-
 ###########################################################################
 # Swoole EXTENSION
 ###########################################################################
@@ -170,12 +122,8 @@ RUN if [ ${INSTALL_PHP_SWOOLE} = true ]; then \
     && if [ ${INSTALL_PHP_71} = true ]; then \
       /etc/laradock/php-swoole.sh 7.1; \
     fi \
-    && if [ ${INSTALL_PHP_72} = true ]; then \
-      /etc/laradock/php-swoole.sh 7.2; \
-    fi \
-    && if [ ${INSTALL_PHP_73} = true ]; then \
-      /etc/laradock/php-swoole.sh 7.3; \
-    fi \
+    && /etc/laradock/php-swoole.sh 7.2 \
+    && /etc/laradock/php-swoole.sh 7.3 \
     && /etc/laradock/php-swoole.sh 7.4 \
 ;fi
 

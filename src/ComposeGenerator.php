@@ -41,6 +41,7 @@ class ComposeGenerator
 			'php-fpm-71' => true,
 			'php-fpm-72' => true,
 			'php-fpm-73' => true,
+			'php-fpm-74' => true,
 			'elasticsearch6' => true,
 		];
 
@@ -166,6 +167,7 @@ class ComposeGenerator
 			'php-fpm-71',
 			'php-fpm-72',
 			'php-fpm-73',
+			'php-fpm-74',
 		];
 		foreach ($services as $service) {
 			$this->configMerge("services.{$service}.volumes", $volumes);
@@ -189,7 +191,7 @@ class ComposeGenerator
 		$template = file_get_contents(__DIR__ . '/../resources/vhost.example.conf');
 		foreach ($this->config->get('sites', []) as $site) {
 			$site += [
-				'php' => '7.2',
+				'php' => '7.4',
 			];
 			$fpmService = 'php-fpm-' . str_replace('.', '', $site['php']);
 			file_put_contents(__DIR__ . "/../etc/sites/{$site['map']}.conf", strtr($template, [
@@ -218,7 +220,7 @@ class ComposeGenerator
 		}
 
 		$phpVersions = Arr::wrap($this->config->get( 'php.versions', []));
-		$phpVersions = array_intersect($phpVersions, ['5.6', '7.0', '7.1', '7.2', '7.3']);
+		$phpVersions = array_intersect($phpVersions, ['5.6', '7.0', '7.1']);
 		$this->configMerge('services.workspace.build.args', array_map(function ($version) {
 			return 'INSTALL_PHP_' . str_replace('.', '', $version) . '=true';
 		}, $phpVersions));

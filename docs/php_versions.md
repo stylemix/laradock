@@ -14,7 +14,7 @@ sites:
 
 ## Cli
 
-By default there is only PHP "7.4" installed in workspace. 
+By default there are PHP "7.4", "7.3", "7.2" versions installed in workspace. 
 In addition, you may install any of the supported PHP versions,
 by uncommenting desired PHP version in your `config.yml`:
 
@@ -23,9 +23,7 @@ php:
   versions:
 #    - "5.6"
 #    - "7.0"
-#    - "7.1"
-    - "7.2"
-    - "7.3"
+    - "7.1"
 ```
 
 and run the following command to reload containers with provisioning:

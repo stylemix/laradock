@@ -63,6 +63,15 @@ services:
     networks:
       - backend
       - frontend
+  php-fpm-74:
+    image: azamatx/laradock-php-fpm:7.4
+    volumes:
+      - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./var/log/php-fpm/:/var/log/php-fpm
+      - ./var/xdebug:/var/www/xdebug
+    networks:
+      - backend
+      - frontend
 
   ### NGINX Server #########################################
   nginx:
