@@ -10,6 +10,7 @@ function laradock_init_files() {
 }
 
 function laradock_generate() {
+	docker run --rm -ti -v $PWD:/laradock -w /laradock --net bridge azamatx/laradock-workspace bash src/docker-ip.sh > var/docker-host-ip
 	docker run --rm -ti -v $PWD:/laradock -w /laradock php:7.2 php src/generate.php
 }
 

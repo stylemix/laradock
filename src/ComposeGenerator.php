@@ -22,6 +22,13 @@ class ComposeGenerator
 
 	protected $excludeServices = [];
 
+	protected $extraHosts = [];
+
+	/**
+	 * @var string An IP of the host
+	 */
+	protected $dockerHostIp;
+
 	/**
 	 * Generate result docker compose file
 	 */
@@ -37,6 +44,8 @@ class ComposeGenerator
 			'elasticsearch6' => true,
 		];
 
+		$this->dockerHostIp = trim(file_get_contents(LARADOCK_ROOT . '/var/docker-host-ip'));
+
 		$this->mapAuthorizedSshKey();
 
 		$this->generateVolumes();
@@ -48,6 +57,8 @@ class ComposeGenerator
 		$this->generateWorkspaceArgs();
 
 		$this->generatePortMappings();
+
+		$this->generateExtraHosts();
 
 		$this->compose['services'] = Arr::except($this->compose['services'], array_keys($this->excludeServices));
 	}
@@ -189,6 +200,8 @@ class ComposeGenerator
 
 			// remove php-fpm version from excluded services
 			unset($this->excludeServices[$fpmService]);
+
+			$this->extraHosts[] = $site['map'] . ':' . $this->dockerHostIp;
 		}
 	}
 
@@ -258,6 +271,17 @@ class ComposeGenerator
 			if (in_array(6, Arr::wrap($this->config->get('features.elasticsearch')))) {
 				unset($this->excludeServices['elasticsearch6']);
 			}
+		}
+	}
+
+	protected function generateExtraHosts()
+	{
+		if (empty($this->extraHosts)) {
+			return;
+		}
+
+		foreach (array_keys($this->compose['services']) as $service) {
+			$this->configMerge("services.$service.extra_hosts", $this->extraHosts);
 		}
 	}
 
