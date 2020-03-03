@@ -158,5 +158,6 @@ so all data in that directory are persistent.
 
 ## More
 
-- [Node.js, Nvm, Npm, Yarn](docs/nodejs.md)
 - [PHP versions](docs/php_versions.md)
+- [PHP Xdebug](docs/xdebug.md)
+- [Node.js, Nvm, Npm, Yarn](docs/nodejs.md)

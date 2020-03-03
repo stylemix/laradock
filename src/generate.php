@@ -8,7 +8,7 @@ define('LARADOCK_ROOT', realpath(__DIR__ . '/..'));
 require LARADOCK_ROOT . '/vendor/autoload.php';
 require __DIR__ . '/helpers.php';
 
-$templateFile = LARADOCK_ROOT . '/resources/docker-compose.example.yml';
+$templateFile = LARADOCK_ROOT . '/src/docker-compose.tpl.yml';
 $outputFile = LARADOCK_ROOT . '/var/docker-compose.yml';
 
 $generator = new ComposeGenerator();

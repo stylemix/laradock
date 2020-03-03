@@ -28,7 +28,12 @@ services:
     volumes:
       - home:/home/laradock
       - ./etc/supervisor:/etc/supervisor/conf.d
-      - ./etc/xdebug.ini:/etc/php/7.1/cli/conf.d/xdebug.ini
+      - ./etc/xdebug.ini:/etc/php/7.4/cli/conf.d/99-xdebug.ini
+      - ./etc/xdebug.ini:/etc/php/7.3/cli/conf.d/99-xdebug.ini
+      - ./etc/xdebug.ini:/etc/php/7.2/cli/conf.d/99-xdebug.ini
+      - ./etc/xdebug.ini:/etc/php/7.1/cli/conf.d/99-xdebug.ini
+      - ./etc/xdebug.ini:/etc/php/7.0/cli/conf.d/99-xdebug.ini
+      - ./etc/xdebug.ini:/etc/php/5.6/cli/conf.d/99-xdebug.ini
       - ./var/log/xdebug:/var/log/xdebug
     tty: true
     networks:
@@ -39,7 +44,7 @@ services:
   php-fpm-71:
     image: azamatx/laradock-php-fpm:7.1
     volumes:
-      - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/99-xdebug.ini
       - ./var/log/php-fpm/:/var/log/php-fpm
       - ./var/xdebug:/var/www/xdebug
     networks:
@@ -48,7 +53,7 @@ services:
   php-fpm-72:
     image: azamatx/laradock-php-fpm:7.2
     volumes:
-      - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/99-xdebug.ini
       - ./var/log/php-fpm/:/var/log/php-fpm
       - ./var/xdebug:/var/www/xdebug
     networks:
@@ -57,7 +62,7 @@ services:
   php-fpm-73:
     image: azamatx/laradock-php-fpm:7.3
     volumes:
-      - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/99-xdebug.ini
       - ./var/log/php-fpm/:/var/log/php-fpm
       - ./var/xdebug:/var/www/xdebug
     networks:
@@ -66,7 +71,7 @@ services:
   php-fpm-74:
     image: azamatx/laradock-php-fpm:7.4
     volumes:
-      - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./etc/xdebug.ini:/usr/local/etc/php/conf.d/99-xdebug.ini
       - ./var/log/php-fpm/:/var/log/php-fpm
       - ./var/xdebug:/var/www/xdebug
     networks:

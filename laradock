@@ -47,10 +47,18 @@ if [[ $CMD == "restart" ]]; then
 	laradock_compose restart ${@:2}
 fi
 
+if [[ $CMD == "compose" ]]; then
+	laradock_compose ${@:2}
+fi
+
 if [[ $CMD == "rebuild" ]]; then
 	laradock_generate
 	laradock_compose build --pull --force-rm
 	laradock_compose up -d --remove-orphans
+fi
+
+if [[ $CMD == "xdebug" ]]; then
+	laradock_xdebug ${@:2}
 fi
 
 if [[ $CMD == "upgrade" ]]; then
